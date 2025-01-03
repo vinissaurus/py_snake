@@ -7,7 +7,7 @@ pygame.init()
 
 # Screen dimensions
 WIDTH, HEIGHT = 800, 600
-CELL_SIZE = 20
+CELL_SIZE = 45
 
 # Colors
 BLACK = (0, 0, 0)
@@ -61,6 +61,8 @@ def menu_screen():
 
 # Main game loop
 def game_loop():
+    global CELL_SIZE
+
     snake_pos, direction, food_pos, food_spawn = initialize_game()
     score = 0
 
@@ -96,7 +98,9 @@ def game_loop():
             snake_pos[0][0] += CELL_SIZE
 
         # Grow snake when eating food
-        if snake_pos[0] == food_pos:
+        # Test if the distance between the snake head and the food is less than the size of the cell
+        if abs(snake_pos[0][0] - food_pos[0]) < CELL_SIZE and abs(snake_pos[0][1] - food_pos[1]) < CELL_SIZE:
+        # if snake_pos[0] == food_pos:
             score += 1
             food_spawn = False
         else:
@@ -108,6 +112,7 @@ def game_loop():
                 random.randrange(0, HEIGHT // CELL_SIZE) * CELL_SIZE
             ]
             food_spawn = True
+            CELL_SIZE -= 1
 
         # Add new head to snake
         snake_pos.insert(0, list(snake_pos[0]))
@@ -125,15 +130,16 @@ def game_loop():
         for indx, pos in enumerate(snake_pos):
             # Instead of pure Green, lets put a gradient color, respecting the limit of 255
             if 255 - indx * 5 < 0:
-                color = (0, 0, 50)
+                color = (0, 0, 100)
             else:
-                color = (0, 255 - indx * 5, 50)
+                color = (0, 255 - indx * 5, 150)
             pygame.draw.rect(screen, color, pygame.Rect(pos[0], pos[1], CELL_SIZE, CELL_SIZE))
         pygame.draw.rect(screen, RED, pygame.Rect(food_pos[0], food_pos[1], CELL_SIZE, CELL_SIZE))
 
         # Display score
         font = pygame.font.SysFont("arial", 25)
-        score_text = font.render(f"Score: {score}", True, WHITE)
+        # score_text = font.render(f"Score: {score}", True, WHITE)
+        score_text = font.render(f"Size: {CELL_SIZE}", True, WHITE)
         screen.blit(score_text, [10, 10])
 
         pygame.display.update()
