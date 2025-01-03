@@ -64,6 +64,10 @@ def game_loop():
     snake_pos, direction, food_pos, food_spawn = initialize_game()
     score = 0
 
+    # Add a few extra cells to the snake
+    for _ in range(50):
+        snake_pos.append(list(snake_pos[-1]))
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -118,8 +122,13 @@ def game_loop():
 
         # Draw everything
         screen.fill(BLACK)
-        for pos in snake_pos:
-            pygame.draw.rect(screen, GREEN, pygame.Rect(pos[0], pos[1], CELL_SIZE, CELL_SIZE))
+        for indx, pos in enumerate(snake_pos):
+            # Instead of pure Green, lets put a gradient color, respecting the limit of 255
+            if 255 - indx * 5 < 0:
+                color = (0, 0, 50)
+            else:
+                color = (0, 255 - indx * 5, 50)
+            pygame.draw.rect(screen, color, pygame.Rect(pos[0], pos[1], CELL_SIZE, CELL_SIZE))
         pygame.draw.rect(screen, RED, pygame.Rect(food_pos[0], food_pos[1], CELL_SIZE, CELL_SIZE))
 
         # Display score
@@ -128,7 +137,7 @@ def game_loop():
         screen.blit(score_text, [10, 10])
 
         pygame.display.update()
-        clock.tick(5)  # Control game speed
+        clock.tick(10)  # Control game speed
 
 def game_over(score):
     font = pygame.font.SysFont("arial", 50)
