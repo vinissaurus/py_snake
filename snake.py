@@ -96,12 +96,24 @@ def game_loop():
         # Move snake
         if direction == "UP":
             snake_pos[0][1] -= CELL_SIZE
+            # Loop the snake from one end of the screen to the other
+            if snake_pos[0][1] < 0:
+                snake_pos[0][1] = HEIGHT
         if direction == "DOWN":
             snake_pos[0][1] += CELL_SIZE
+            # Loop the snake from one end of the screen to the other
+            if snake_pos[0][1] > HEIGHT:
+                snake_pos[0][1] = 0
         if direction == "LEFT":
             snake_pos[0][0] -= CELL_SIZE
+            # Loop the snake from one end of the screen to the other
+            if snake_pos[0][0] < 0:
+                snake_pos[0][0] = WIDTH
         if direction == "RIGHT":
             snake_pos[0][0] += CELL_SIZE
+            # Loop the snake from one end of the screen to the other
+            if snake_pos[0][0] > WIDTH:
+                snake_pos[0][0] = 0
 
         # Grow snake when eating food
         # Test if the distance between the snake head and the food is less than the size of the cell
