@@ -7,13 +7,18 @@ pygame.init()
 
 # Screen dimensions
 WIDTH, HEIGHT = 800, 600
-CELL_SIZE = 45
+CELL_SIZE = 55
 
 # Colors
-BLACK = (0, 0, 0)
+BLACK = (30, 30, 30)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
+
+# Add this variable at the beginning of your game loop
+rotation_angle = 0
+speed = 10
+
 
 # Setup screen
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -61,7 +66,7 @@ def menu_screen():
 
 # Main game loop
 def game_loop():
-    global CELL_SIZE
+    global CELL_SIZE, rotation_angle, speed
 
     snake_pos, direction, food_pos, food_spawn = initialize_game()
     score = 0
@@ -71,6 +76,7 @@ def game_loop():
         snake_pos.append(list(snake_pos[-1]))
 
     while True:
+        rotation_angle += 5
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -111,8 +117,11 @@ def game_loop():
                 random.randrange(0, WIDTH // CELL_SIZE) * CELL_SIZE,
                 random.randrange(0, HEIGHT // CELL_SIZE) * CELL_SIZE
             ]
+
             food_spawn = True
             CELL_SIZE -= 1
+            speed += 1
+
 
         # Add new head to snake
         snake_pos.insert(0, list(snake_pos[0]))
@@ -134,7 +143,18 @@ def game_loop():
             else:
                 color = (0, 255 - indx * 5, 150)
             pygame.draw.rect(screen, color, pygame.Rect(pos[0], pos[1], CELL_SIZE, CELL_SIZE))
-        pygame.draw.rect(screen, RED, pygame.Rect(food_pos[0], food_pos[1], CELL_SIZE, CELL_SIZE))
+        # Draw food rotating on the screen
+        # pygame.draw.rect(screen, RED, pygame.Rect(food_pos[0], food_pos[1], CELL_SIZE, CELL_SIZE))
+        # Draw food rotating on the screen
+        # food_rect = pygame.Rect(food_pos[0], food_pos[1], CELL_SIZE, CELL_SIZE)
+
+        # Draw a circle instead of a rectangle
+        pygame.draw.circle(screen, RED, (food_pos[0], food_pos[1]), CELL_SIZE // 2)
+
+        # rotated_food = pygame.transform.rotate(pygame.Surface((CELL_SIZE, CELL_SIZE)), rotation_angle)
+        # rotated_food.fill(RED)
+        # screen.blit(food_ball, food_ball.topleft)
+
 
         # Display score
         font = pygame.font.SysFont("arial", 25)
@@ -143,7 +163,7 @@ def game_loop():
         screen.blit(score_text, [10, 10])
 
         pygame.display.update()
-        clock.tick(10)  # Control game speed
+        clock.tick(speed)  # Control game speed
 
 def game_over(score):
     font = pygame.font.SysFont("arial", 50)
