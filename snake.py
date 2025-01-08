@@ -132,7 +132,7 @@ def game_loop():
 
             food_spawn = True
             CELL_SIZE -= 1
-            speed += 1
+            speed += 0.5
 
 
         # Add new head to snake
