@@ -7,18 +7,20 @@ pygame.init()
 
 # Screen dimensions
 WIDTH, HEIGHT = 800, 600
-CELL_SIZE = 55
+CELL_SIZE = 15
 
 # Colors
 BLACK = (30, 30, 30)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
+GRAY = (50, 50, 50)
 RED = (255, 0, 0)
 
 # Add this variable at the beginning of your game loop
 rotation_angle = 0
 speed = 10
 
+food_pos = [0, 0]
 
 # Setup screen
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -64,9 +66,32 @@ def menu_screen():
                     pygame.quit()
                     quit()
 
+target_animation_length = 5
+target_animation_frame = - target_animation_length
+target_animation_speed = 1
+def draw_target(color = RED, background_color = BLACK):
+    # Draw a circle in the same size as base_ball in the food position, it will pulsate in size
+    global target_animation_frame, target_animation_length, target_animation_speed
+
+    # Calculate the size of the ball
+    ball_size = (CELL_SIZE + target_animation_frame) // 2 
+
+    # Draw the ball
+    food_ball = pygame.draw.circle(screen, color, food_pos, ball_size)
+
+    # Draw small static white dot in the center of the ball
+    dot_size = max(ball_size // 5, 2)
+    pygame.draw.circle(screen, WHITE, food_pos, dot_size)
+
+    # Update the animation frame
+    target_animation_frame += target_animation_speed
+    if target_animation_frame >= target_animation_length or target_animation_frame <= -target_animation_length:
+        # target_animation_frame = -target_animation_length
+        target_animation_speed *= -1
+
 # Main game loop
 def game_loop():
-    global CELL_SIZE, rotation_angle, speed
+    global CELL_SIZE, rotation_angle, speed, food_pos
 
     snake_pos, direction, food_pos, food_spawn = initialize_game()
     score = 0
@@ -82,6 +107,40 @@ def game_loop():
                 pygame.quit()
                 quit()
 
+        def draw_aim_arrow(color = GRAY, background_color = BLACK):
+            # Get the centroid of the snake's head
+            centroid = (snake_pos[0][0] + CELL_SIZE // 2, snake_pos[0][1] + CELL_SIZE // 2)
+            
+            base_ball_size = max(CELL_SIZE / 3 , 10)
+
+            # Draw the base ball
+            base_ball = pygame.draw.circle(screen, color, centroid, base_ball_size)
+
+            # Draw the shaft
+            # shaft = pygame.draw.line(screen, color, centroid, food_pos, 2)
+
+            # Draw dashes on the shaft
+            # Calculate the distance between the snake head and the food
+            distance = ((food_pos[0] - centroid[0]) ** 2 + (food_pos[1] - centroid[1]) ** 2) ** 0.5
+            # Calculate the number of dashes
+            num_dashes = max(int(distance / 5),10)
+            # Calculate the step size for each dash
+            step_size = (food_pos[0] - centroid[0]) / num_dashes, (food_pos[1] - centroid[1]) / num_dashes
+            # Draw the dashes
+            for i in range(num_dashes):
+                if i % 2 == 0:
+                    pygame.draw.line(screen, color, (centroid[0] + i * step_size[0], centroid[1] + i * step_size[1]), (centroid[0] + (i + 1) * step_size[0], centroid[1] + (i + 1) * step_size[1]), 2)
+
+           # Draw a circle in the same size as base_ball in the food position
+            food_ball = pygame.draw.circle(screen, color, food_pos, base_ball_size)
+
+
+
+
+
+            # food_ball = pygame.draw.circle(screen, color, food_pos, CELL_SIZE // 2)
+
+
         # Control direction with arrow keys
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP] and direction != "DOWN":
@@ -92,6 +151,8 @@ def game_loop():
             direction = "LEFT"
         if keys[pygame.K_RIGHT] and direction != "LEFT":
             direction = "RIGHT"
+
+        # Other specific animation 
 
         # Move snake
         if direction == "UP":
@@ -160,8 +221,14 @@ def game_loop():
         # Draw food rotating on the screen
         # food_rect = pygame.Rect(food_pos[0], food_pos[1], CELL_SIZE, CELL_SIZE)
 
+        # Draw this line thing to show the direction of the food
+        draw_aim_arrow()
+
         # Draw a circle instead of a rectangle
-        pygame.draw.circle(screen, RED, (food_pos[0], food_pos[1]), CELL_SIZE // 2)
+        draw_target()
+
+        # pygame.draw.circle(screen, RED, (food_pos[0], food_pos[1]), CELL_SIZE // 2)
+
 
         # rotated_food = pygame.transform.rotate(pygame.Surface((CELL_SIZE, CELL_SIZE)), rotation_angle)
         # rotated_food.fill(RED)
